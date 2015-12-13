@@ -6,3 +6,6 @@ It supports using your gadget with multiple PC's, remembering history and person
 MobilePad is superfast and optimized for performance and battery life of mobile device. It supports different control layouts and even creation of your own!
 
 Use your mobile device as universal controller of any kind of PC at your home and job with MobilePad.
+
+To use this application, you also need to run [MobilePadServer] [MobilePadServer] on your PC.
+ [MobilePadServer]: <https://github.com/Youw/MobilePadServer>
