@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Material design colors -->
     <item name="primary" type="color">#607d8b</item>
     <item name="primaryDark" type="color">#455a64</item>
     <item name="accent" type="color">#ffffff</item>
+
+    <!-- General Colors -->
+    <item name="white" type="color">#fff</item>
+    <item name="black" type="color">#000</item>
+    <item name="gray" type="color">#555</item>
 </resources>

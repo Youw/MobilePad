@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/settings_title_theme">
+        <ListPreference android:key="settings_theme"
+            android:title="@string/settings_title_theme"
+            android:summary=""
+            android:entries="@array/settings_theme_elements"
+            android:entryValues="@array/settings_theme_elements"
+            android:defaultValue="@string/settings_theme_default" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_title_general">
+        <EditTextPreference android:key="settings_profile_name"
+            android:title="@string/settings_general_profile_name"
+            android:summary="@string/settings_general_profile_name_hint" />
+        <EditTextPreference android:key="settings_password"
+            android:title="@string/settings_general_password"
+            android:summary="@string/settings_general_password_hint" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_title_misc">
+        <Preference android:key="settings_update"
+            android:title="@string/settings_misc_update"
+            android:summary="@string/settings_misc_update_hint" />
+        <CheckBoxPreference android:key="settings_sound"
+            android:title="@string/settings_misc_sound"
+            android:summary="@string/settings_misc_sound_hint" />
+    </PreferenceCategory>
+</PreferenceScreen>

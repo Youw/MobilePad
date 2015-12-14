@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">MobilePad</string>
+    <!-- Menu -->
     <string name="action_settings">Settings</string>
+    <string name="action_logout">Logout</string>
+
+    <!-- Activities -->
     <string name="title_activity_login">Log in</string>
 
     <!-- Strings related to login -->
@@ -16,4 +20,25 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- Settings -->
+    <string name="settings_title_general">General</string>
+    <string name="settings_title_theme">Theme</string>
+    <string name="settings_title_misc">Misc</string>
+
+    <string-array name="settings_theme_elements">
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+    <string name="settings_theme_default">Light</string>
+    <string name="settings_general_profile_name">Profile Name</string>
+    <string name="settings_general_password">Password</string>
+    <string name="settings_misc_update">Update</string>
+    <string name="settings_misc_sound">Sound</string>
+
+    <string name="settings_general_profile_name_hint"> </string>
+    <string name="settings_general_password_hint"> </string>
+    <string name="settings_misc_update_hint"> </string>
+    <string name="settings_misc_sound_hint"> </string>
+
 </resources>

@@ -1,6 +1,7 @@
 package com.easyapp.mobilepad;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,6 +12,14 @@ public class Connections extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connections);
+
+        if (savedInstanceState != null) return;
+
+        ConnectionsListFragment connectionsFragment = new ConnectionsListFragment();
+        connectionsFragment.setArguments(getIntent().getExtras());
+        getFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, connectionsFragment)
+                .commit();
     }
 
     @Override
@@ -27,9 +36,16 @@ public class Connections extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                SettingsFragment settingsFragment = new SettingsFragment();
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, settingsFragment)
+                        .addToBackStack(null)
+                        .commit();
+                return true;
+            case R.id.action_logout:
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
