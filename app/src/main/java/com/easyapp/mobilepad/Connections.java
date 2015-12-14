@@ -1,6 +1,5 @@
 package com.easyapp.mobilepad;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -9,18 +8,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Connections extends AppCompatActivity {
 
     EditText textView;
     TextView log;
     TCPSocketConnection connection;
+    RemoteInputEmulator inputEmulator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +35,7 @@ public class Connections extends AppCompatActivity {
             }
         });
         connection.start();
+        inputEmulator = new RemoteInputEmulator(connection);
     }
 
     @Override

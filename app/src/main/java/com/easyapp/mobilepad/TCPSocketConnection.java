@@ -31,10 +31,10 @@ public class TCPSocketConnection extends Thread {
 
     private List<String> mSendData = new ArrayList<>();
 
-    public TCPSocketConnection(String addr, int port) {
-        mAddress = addr;
-        mPort = port;
-    }
+//    public TCPSocketConnection(String addr, int port) {
+//        mAddress = addr;
+//        mPort = port;
+//    }
 
     public TCPSocketConnection(String addr) {
         mAddress = addr;
