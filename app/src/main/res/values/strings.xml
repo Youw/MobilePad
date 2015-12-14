@@ -6,6 +6,8 @@
 
     <!-- Activities -->
     <string name="title_activity_login">Log in</string>
+    <string name="title_activity_connections">Connections</string>
+    <string name="content_description_image">Connection image</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Username</string>

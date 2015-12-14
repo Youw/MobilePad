@@ -8,10 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import java.lang.reflect.Array;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +56,30 @@ public class ConnectionsListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+    }
+
+    public class ConnectionListAdapter extends ArrayAdapter<String> {
+
+        private Context mContext;
+
+        public ConnectionListAdapter(Context context, int resource, List<String> items){
+            super(context, resource, items);
+            this.mContext = context;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent){
+            View view = convertView;
+            if (view == null) {
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.connection_list_item, null);
+            }
+            String item = getItem(position);
+            if(item != null) {
+                ((TextView)view.findViewById(R.id.connection_text)).setText(item);
+            }
+            return view;
+        }
     }
 
 }
