@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by Gasper on 14.12.2015.
@@ -24,6 +25,9 @@ public class TCPSocketConnection extends Thread {
     private Socket mSocket = null;
     private DataInputStream mIn = null;
     private DataOutputStream mOut = null;
+
+    private Semaphore semaphoreReadSendData = new Semaphore(0);
+    private Semaphore semaphoreWriteSendData = new Semaphore(0);
 
     private List<String> mSendData = new ArrayList<>();
 
@@ -46,15 +50,19 @@ public class TCPSocketConnection extends Thread {
             mOut = new DataOutputStream(mSocket.getOutputStream());
 
             while (!Thread.currentThread().isInterrupted()) {
-                if (mSendData != null && mSendData.size() > 0) {
+                if (mSendData.size() > 0) {
                     for (String data : mSendData) {
                         mOut.writeBytes(data);
                     }
+                    mOut.flush();
                     mSendData.clear();
                 }
                 if (mIn.available() > 0) {
                     mListener.onRead(mIn.readUTF());
                 }
+
+                semaphoreWriteSendData.release();
+                semaphoreReadSendData.acquire();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,6 +96,13 @@ public class TCPSocketConnection extends Thread {
     }
 
     public void send(String data){
+        try {
+            semaphoreWriteSendData.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return;
+        }
         this.mSendData.add(data);
+        semaphoreReadSendData.release();
     }
 }
