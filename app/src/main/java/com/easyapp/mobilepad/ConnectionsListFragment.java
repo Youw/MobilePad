@@ -1,8 +1,12 @@
 package com.easyapp.mobilepad;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,26 +31,43 @@ public class ConnectionsListFragment extends Fragment {
             Arrays.asList("Connection1", "Connection2", "Connection3", "Connection4")
     );
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public ConnectionsListFragment(){}
+
+    public static ConnectionsListFragment newInstance(String profileName){
+        ConnectionsListFragment fragment = new ConnectionsListFragment();
+        // TODO: Add SQLite access for saved connections for profileName
+        return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_connections_list, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_connections_list, container, false);
 
         ListView connectionsList = (ListView)rootView.findViewById(R.id.connections_list);
         mAdapter = new ArrayAdapter<>(connectionsList.getContext(),
                 R.layout.connection_list_item, MOCKUP_LIST);
         connectionsList.setAdapter(mAdapter);
 
+        // on fab click
+        FloatingActionButton fab = (FloatingActionButton)rootView.findViewById(R.id.connections_list_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                (new AlertDialog.Builder(rootView.getContext()))
+                        .setMessage("This functionality will be added later.").create().show();
+            }
+        });
+
         // on list item click
         connectionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                String connection = (String)parent.getItemAtPosition(position);
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, PresetsFragment.newInstance(connection))
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
