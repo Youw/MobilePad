@@ -7,4 +7,5 @@
     <!-- Connection list items -->
     <dimen name="connection_list_item_height">50dp</dimen>
     <dimen name="connection_list_item_image_margin">18dp</dimen>
+    <dimen name="connection_list_fab_margin">16dp</dimen>
 </resources>
