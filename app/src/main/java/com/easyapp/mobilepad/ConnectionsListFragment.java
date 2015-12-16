@@ -4,17 +4,23 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.easyapp.mobilepad.datacontract.Connection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +42,7 @@ public class ConnectionsListFragment extends Fragment {
     public static ConnectionsListFragment newInstance(String profileName){
         ConnectionsListFragment fragment = new ConnectionsListFragment();
         // TODO: Add SQLite access for saved connections for profileName
+
         return fragment;
     }
 
@@ -54,8 +61,37 @@ public class ConnectionsListFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final EditText host = new EditText(getActivity().getBaseContext());
+                host.setInputType(InputType.TYPE_CLASS_NUMBER);
                 (new AlertDialog.Builder(rootView.getContext()))
-                        .setMessage("This functionality will be added later.").create().show();
+                        .setTitle(getString(R.string.add_host_dialog_title))
+                        .setView(host)
+                        .setPositiveButton(getString(R.string.add_host_dialog_OK), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String hostName = host.getText().toString().trim();
+                                if (hostName.matches("(?:\\d{1,3}\\.){3}\\d{1,3}(?::\\d+)?")){
+                                    String[] parts = hostName.split(":");
+                                    // TODO: Add Sqlite integration
+                                    int port = 8887;
+                                    if (parts.length > 1) {
+                                        port = Integer.getInteger(parts[1],8887);
+                                    }
+                                    MOCKUP_LIST.add(parts[0]);
+                                } else {
+                                    Toast.makeText(getActivity().getBaseContext(),
+                                            getString(R.string.add_host_dialog_err),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.add_host_dialog_Cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .create().show();
             }
         });
 
@@ -79,11 +115,11 @@ public class ConnectionsListFragment extends Fragment {
         super.onAttach(context);
     }
 
-    public class ConnectionListAdapter extends ArrayAdapter<String> {
+    public class ConnectionListAdapter extends ArrayAdapter<Connection> {
 
         private Context mContext;
 
-        public ConnectionListAdapter(Context context, int resource, List<String> items){
+        public ConnectionListAdapter(Context context, int resource, List<Connection> items){
             super(context, resource, items);
             this.mContext = context;
         }
@@ -95,9 +131,9 @@ public class ConnectionsListFragment extends Fragment {
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.connection_list_item, null);
             }
-            String item = getItem(position);
+            Connection item = getItem(position);
             if(item != null) {
-                ((TextView)view.findViewById(R.id.connection_text)).setText(item);
+                ((TextView)view.findViewById(R.id.connection_text)).setText(item.toString());
             }
             return view;
         }

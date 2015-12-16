@@ -43,7 +43,13 @@
     <string name="settings_misc_update_hint"> </string>
     <string name="settings_misc_sound_hint"> </string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Add host dialog -->
+    <string name="add_host_dialog_title">Enter host:</string>
+    <string name="add_host_dialog_OK">OK</string>
+    <string name="add_host_dialog_Cancel">Cancel</string>
+    <string name="add_host_dialog_err">Invalid host</string>
+
+    <!-- TODO: Remove this placeholder text -->
+    <string name="msg_missing_functionality">This functionality will be added later.</string>
 
 </resources>

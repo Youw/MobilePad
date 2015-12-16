@@ -52,7 +52,7 @@ public class PresetsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 (new AlertDialog.Builder(rootView.getContext()))
-                        .setMessage("This functionality will be added later.").create().show();
+                        .setMessage(getString(R.string.msg_missing_functionality)).create().show();
             }
         });
 
