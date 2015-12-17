@@ -1,6 +1,7 @@
 package com.easyapp.mobilepad;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
@@ -31,18 +32,20 @@ import java.util.List;
  */
 public class ConnectionsListFragment extends Fragment {
 
-    private ArrayAdapter<String> mAdapter;
+    private final static DBConnection dbConnection = SQLiteDBConnection.getInstance(null);
 
-    private final static List<String> MOCKUP_LIST = new ArrayList<>(
-            Arrays.asList("Connection1", "Connection2", "Connection3", "Connection4")
-    );
+    private int mProfileId = -1;
+    private ArrayAdapter<Connection> mAdapter;
+    private List<Connection> mConnectionList = new ArrayList<>();
 
     public ConnectionsListFragment(){}
 
-    public static ConnectionsListFragment newInstance(String profileName){
+    public static ConnectionsListFragment newInstance(int profileId){
         ConnectionsListFragment fragment = new ConnectionsListFragment();
-        // TODO: Add SQLite access for saved connections for profileName
-
+        if (profileId != -1) {
+            fragment.mProfileId = profileId;
+            fragment.mConnectionList.addAll(dbConnection.getConnections(profileId));
+        }
         return fragment;
     }
 
@@ -52,8 +55,8 @@ public class ConnectionsListFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_connections_list, container, false);
 
         ListView connectionsList = (ListView)rootView.findViewById(R.id.connections_list);
-        mAdapter = new ArrayAdapter<>(connectionsList.getContext(),
-                R.layout.connection_list_item, MOCKUP_LIST);
+        mAdapter = new ConnectionListAdapter(connectionsList.getContext(),
+                R.layout.connection_list_item, mConnectionList);
         connectionsList.setAdapter(mAdapter);
 
         // on fab click
@@ -70,14 +73,16 @@ public class ConnectionsListFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String hostName = host.getText().toString().trim();
-                                if (hostName.matches("(?:\\d{1,3}\\.){3}\\d{1,3}(?::\\d+)?")){
+                                if (hostName.matches("(?:\\d{1,3}\\.){3}\\d{1,3}(?::\\d+)?")) {
                                     String[] parts = hostName.split(":");
-                                    // TODO: Add Sqlite integration
                                     int port = 8887;
                                     if (parts.length > 1) {
-                                        port = Integer.getInteger(parts[1],8887);
+                                        port = Integer.getInteger(parts[1], 8887);
                                     }
-                                    MOCKUP_LIST.add(parts[0]);
+                                    Connection connection = new Connection(parts[0],port);
+                                    if (dbConnection.updateDb(connection)) {
+                                        mConnectionList.add(connection);
+                                    }
                                 } else {
                                     Toast.makeText(getActivity().getBaseContext(),
                                             getString(R.string.add_host_dialog_err),
@@ -99,9 +104,9 @@ public class ConnectionsListFragment extends Fragment {
         connectionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String connection = (String)parent.getItemAtPosition(position);
+                Connection connection = (Connection)parent.getItemAtPosition(position);
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, PresetsFragment.newInstance(connection))
+                        .replace(R.id.fragment_container, PresetsFragment.newInstance(mProfileId))
                         .addToBackStack(null)
                         .commit();
             }

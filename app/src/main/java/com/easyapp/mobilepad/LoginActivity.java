@@ -15,10 +15,11 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.easyapp.mobilepad.datacontract.Profile;
 
 /**
  * A login screen that offers login via email/password.
@@ -26,9 +27,10 @@ import android.widget.TextView;
 public class LoginActivity extends Activity {
 
     private UserLoginTask mAuthTask = null;
+    private DBConnection dbConnection = SQLiteDBConnection.getInstance(getApplicationContext());
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private TextView mNameView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -38,7 +40,7 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mNameView = (TextView) findViewById(R.id.name);
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -52,8 +54,8 @@ public class LoginActivity extends Activity {
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mNameSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mNameSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -65,7 +67,7 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to sign in the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
@@ -75,12 +77,12 @@ public class LoginActivity extends Activity {
         }
 
         // Reset errors.
-        mEmailView.setError(null);
+        mNameView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String name = mNameView.getText().toString().trim();
+        String password = mPasswordView.getText().toString().trim();
 
         boolean cancel = false;
         View focusView = null;
@@ -92,14 +94,14 @@ public class LoginActivity extends Activity {
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+        // Check for a valid name address.
+        if (TextUtils.isEmpty(name)) {
+            mNameView.setError(getString(R.string.error_field_required));
+            focusView = mNameView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        } else if (!isEmailValid(name)) {
+            mNameView.setError(getString(R.string.error_invalid_email));
+            focusView = mNameView;
             cancel = true;
         }
 
@@ -111,7 +113,7 @@ public class LoginActivity extends Activity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(name, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -166,27 +168,19 @@ public class LoginActivity extends Activity {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
+        private final String mName;
         private final String mPassword;
+        private Profile mProfile = null;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String name, String password) {
+            mName = name;
             mPassword = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            // TODO: register the new account here.
-            return true;
+            mProfile = dbConnection.getProfile(mName);
+            return mProfile != null && Cryptography.verify(mPassword, mProfile.getPassword());
         }
 
         @Override
@@ -196,11 +190,16 @@ public class LoginActivity extends Activity {
 
             if (success) {
                 Bundle options = new Bundle();
-                options.putString("username", mEmail);
+                options.putInt("profile", mProfile.getId());
                 startActivity(new Intent(getBaseContext(), Connections.class), options);
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                if (mProfile == null){
+                    mNameView.setError(getText(R.string.error_incorrect_profile));
+                    mNameView.requestFocus();
+                } else {
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
             }
         }
 

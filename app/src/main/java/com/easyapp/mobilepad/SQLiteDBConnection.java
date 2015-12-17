@@ -2,13 +2,13 @@ package com.easyapp.mobilepad;
 
 import com.easyapp.mobilepad.datacontract.*;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SQLiteDBConnection implements DBConnection {
@@ -30,7 +30,7 @@ public class SQLiteDBConnection implements DBConnection {
     }
 
     @Override
-    public int validateProfile(@NonNull String login, @NonNull byte[] pass) {
+    public Profile getProfile(@NonNull String login) {
         try (SQLiteDatabase db = mDBHelper.getReadableDatabase()) {
             String[] projection = {
                     Profile.ID,
@@ -39,15 +39,15 @@ public class SQLiteDBConnection implements DBConnection {
             String[] where = { login };
 
             try (Cursor c = db.query(Profile.TABLE_NAME,
-                    projection, Profile.EMAIL + "=?", where, null, null, null)) {
+                    projection, Profile.NAME + "=?", where, null, null, null)) {
                 if (c.moveToFirst()) {
                     int id = c.getInt(0);
                     byte[] password = c.getBlob(1);
-                    if (Arrays.equals(pass, password)) return id;
+                    return new Profile(id, login, password);
                 }
             }
         }
-        return -1;
+        return null;
     }
 
     @Override
@@ -96,5 +96,18 @@ public class SQLiteDBConnection implements DBConnection {
             }
         }
         return result;
+    }
+
+    @Override
+    public boolean updateDb(Connection connection) {
+        long result = -1;
+        try(SQLiteDatabase db = mDBHelper.getWritableDatabase()) {
+            ContentValues values = new ContentValues();
+            values.put(Connection.HOST, connection.getHost());
+            values.put(Connection.PORT, connection.getPort());
+
+            result = db.insert(Connection.TABLE_NAME, null, values);
+        }
+        return result != -1;
     }
 }

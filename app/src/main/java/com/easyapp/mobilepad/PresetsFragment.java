@@ -12,6 +12,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import com.easyapp.mobilepad.datacontract.Preset;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,17 +25,20 @@ import java.util.List;
  */
 public class PresetsFragment extends Fragment {
 
-    private final static List<String> MOCKUP_LIST = new ArrayList<>(
-        Arrays.asList("Preset1", "Preset2", "Preset3")
-    );
+    private final static DBConnection dbConnection = SQLiteDBConnection.getInstance(null);
 
-    private ArrayAdapter<String> mAdapter = null;
+    private int mProfileId = -1;
+    private ArrayAdapter<Preset> mAdapter;
+    private List<Preset> mPresetList = new ArrayList<>();
 
     public PresetsFragment() { }
 
-    public static PresetsFragment newInstance(String profileName) {
+    public static PresetsFragment newInstance(int profileId) {
         PresetsFragment fragment = new PresetsFragment();
-        // TODO: Add SQLite access for presets for profileName
+        if (profileId != -1){
+            fragment.mProfileId = profileId;
+            fragment.mPresetList.addAll(dbConnection.getPresets(profileId));
+        }
         return fragment;
     }
 
@@ -42,8 +48,8 @@ public class PresetsFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_presets, container, false);
 
         ListView presetsList = (ListView)rootView.findViewById(R.id.presets_list);
-        mAdapter = new ArrayAdapter<>(presetsList.getContext(),
-                R.layout.presets_list_item, MOCKUP_LIST);
+        mAdapter = new PresetListAdapter(presetsList.getContext(),
+                R.layout.presets_list_item, mPresetList);
         presetsList.setAdapter(mAdapter);
 
         // on fab click
@@ -75,4 +81,27 @@ public class PresetsFragment extends Fragment {
         super.onAttach(context);
     }
 
+    public class PresetListAdapter extends ArrayAdapter<Preset> {
+
+        private Context mContext;
+
+        public PresetListAdapter(Context context, int resource, List<Preset> items) {
+            super(context, resource, items);
+            this.mContext = context;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent){
+            View view = convertView;
+            if (view == null) {
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                inflater.inflate(R.layout.presets_list_item, null);
+            }
+            Preset preset = getItem(position);
+            if (preset != null) {
+                ((TextView)view.findViewById(R.id.presets_item)).setText(preset.getName());
+            }
+            return view;
+        }
+    }
 }

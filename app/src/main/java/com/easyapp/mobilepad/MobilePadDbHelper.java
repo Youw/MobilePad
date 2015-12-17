@@ -19,7 +19,7 @@ public class MobilePadDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + Profile.TABLE_NAME + " (" +
                         Profile.ID + " integer primary key asc autoincrement," +
-                        Profile.EMAIL + " text not null," +
+                        Profile.NAME + " text not null," +
                         Profile.PASSWORD + " blob not null" +
                         ")"
                     );
@@ -42,7 +42,7 @@ public class MobilePadDbHelper extends SQLiteOpenHelper {
         );
 
         // insert admin profile
-        db.execSQL("insert into " + Profile.TABLE_NAME + "(" + Profile.EMAIL + ") " +
+        db.execSQL("insert into " + Profile.TABLE_NAME + "(" + Profile.NAME + ") " +
                         "values('admin@admin.com')"
         );
     }

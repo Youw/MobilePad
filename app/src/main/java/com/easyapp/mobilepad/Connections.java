@@ -14,8 +14,8 @@ public class Connections extends Activity {
 
         if (savedInstanceState != null) return;
 
-        String profile = getIntent().getExtras().getString("username");
-        ConnectionsListFragment connectionsFragment = ConnectionsListFragment.newInstance(profile);
+        int profileId = getIntent().getExtras().getInt("profile", -1);
+        ConnectionsListFragment connectionsFragment = ConnectionsListFragment.newInstance(profileId);
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, connectionsFragment)
                 .commit();

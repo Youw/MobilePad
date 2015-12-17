@@ -10,8 +10,9 @@ import java.util.List;
  * Created by Gasper on 15.12.2015.
  */
 public interface DBConnection {
-    int validateProfile(@NonNull String login, @NonNull byte[] pass);
+    Profile getProfile(@NonNull String login);
     List<Connection> getConnections(int profileId);
     List<Preset> getPresets(int profileId);
+    boolean updateDb(Connection connection);
 }
 
