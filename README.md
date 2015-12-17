@@ -10,4 +10,7 @@ Use your mobile device as universal controller of any kind of PC at your home an
 To use this application, you also need to run [MobilePadServer] [MobilePadServer] on your PC.
  [MobilePadServer]: <https://github.com/Youw/MobilePadServer>
 
-Performed by: Ihor Dutchak, Paul Borisenko and Andrii Temnikov (KM-41m).
+###Performed by: 
+- Ihor Dutchak
+- Pavlo Borysenko 
+- Andrii Temnikov
