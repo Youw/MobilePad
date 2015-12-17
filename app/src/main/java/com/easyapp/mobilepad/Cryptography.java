@@ -23,19 +23,19 @@ public class Cryptography {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[SALT_LENGTH];
         random.nextBytes(salt);
-        byte[] hash = Arrays.copyOf(salt,SALT_LENGTH+KEY_LENGTH);
         byte[] pbkdf2 = constructHash(password, salt);
         if (pbkdf2 == null) return null;
-        System.arraycopy(pbkdf2,0,hash,SALT_LENGTH,KEY_LENGTH);
+        byte[] hash = Arrays.copyOf(salt,SALT_LENGTH+pbkdf2.length);
+        System.arraycopy(pbkdf2,0,hash,SALT_LENGTH,pbkdf2.length);
         return hash;
     }
 
     public static boolean verify(@NonNull String password, @NonNull byte[] hash) {
-        if (hash.length < SALT_LENGTH+KEY_LENGTH) return false;
+        if (hash.length < SALT_LENGTH+1) return false;
         byte[] salt = Arrays.copyOfRange(hash, 0, SALT_LENGTH);
-        byte[] pbkdf2 = Arrays.copyOfRange(hash, SALT_LENGTH, hash.length-1);
-        byte[] testHash = constructHash(password,salt);
-        return slowEquals(pbkdf2, testHash);
+        byte[] pbkdf2 = Arrays.copyOfRange(hash, SALT_LENGTH, hash.length);
+        byte[] test_pbkdf2 = constructHash(password,salt);
+        return slowEquals(pbkdf2, test_pbkdf2);
     }
 
     private static byte[] constructHash(String password, byte[] salt) {

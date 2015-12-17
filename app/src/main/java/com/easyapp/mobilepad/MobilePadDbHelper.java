@@ -1,5 +1,6 @@
 package com.easyapp.mobilepad;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -42,9 +43,11 @@ public class MobilePadDbHelper extends SQLiteOpenHelper {
         );
 
         // insert admin profile
-        db.execSQL("insert into " + Profile.TABLE_NAME + "(" + Profile.NAME + ") " +
-                        "values('admin@admin.com')"
-        );
+        ContentValues admin_account = new ContentValues();
+        admin_account.put(Profile.NAME, "admin@admin.com");
+        byte password[] = Cryptography.encrypt("admin");
+        admin_account.put(Profile.PASSWORD, password);
+        db.insert(Profile.TABLE_NAME, null, admin_account);
     }
 
     @Override

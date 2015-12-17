@@ -27,7 +27,7 @@ import com.easyapp.mobilepad.datacontract.Profile;
 public class LoginActivity extends Activity {
 
     private UserLoginTask mAuthTask = null;
-    private DBConnection dbConnection = SQLiteDBConnection.getInstance(getApplicationContext());
+    private DBConnection dbConnection = null;
 
     // UI references.
     private TextView mNameView;
@@ -39,6 +39,10 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        if (dbConnection == null) {
+            dbConnection = SQLiteDBConnection.getInstance(getApplicationContext());
+        }
+
         // Set up the login form.
         mNameView = (TextView) findViewById(R.id.name);
 
@@ -191,7 +195,9 @@ public class LoginActivity extends Activity {
             if (success) {
                 Bundle options = new Bundle();
                 options.putInt("profile", mProfile.getId());
-                startActivity(new Intent(getBaseContext(), Connections.class), options);
+                Intent connections_intent = new Intent(getBaseContext(), Connections.class);
+                connections_intent.putExtras(options);
+                startActivity(connections_intent);
             } else {
                 if (mProfile == null){
                     mNameView.setError(getText(R.string.error_incorrect_profile));
