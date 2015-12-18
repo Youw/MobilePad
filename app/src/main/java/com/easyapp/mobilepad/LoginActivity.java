@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 
 import android.os.AsyncTask;
@@ -18,6 +20,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.easyapp.mobilepad.datacontract.Profile;
 
@@ -27,6 +30,7 @@ import com.easyapp.mobilepad.datacontract.Profile;
 public class LoginActivity extends Activity {
 
     private UserLoginTask mAuthTask = null;
+    private UserSignUpTask mSignUpTask = null;
     private DBConnection dbConnection = null;
 
     // UI references.
@@ -58,16 +62,62 @@ public class LoginActivity extends Activity {
             }
         });
 
-        Button mNameSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mNameSignInButton.setOnClickListener(new OnClickListener() {
+        Button mLoginButton = (Button) findViewById(R.id.login_button);
+        mLoginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
 
+        Button mSignUpButton = (Button) findViewById(R.id.signup_button);
+        mSignUpButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attemptSignUp();
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    /**
+     * Attempts to sign up a new user.
+     */
+    private void attemptSignUp() {
+        if (mSignUpTask != null) {
+            return;
+        }
+
+        AlertDialog dialog = new AlertDialog.Builder(this).create();
+        View dialogView = View.inflate(dialog.getContext(), R.layout.dialog_signup, null);
+
+        final EditText mName = (EditText) dialogView.findViewById(R.id.dialog_signup_name);
+        final EditText mPassword = (EditText) dialogView.findViewById(R.id.dialog_signup_password);
+
+        dialog.setTitle(getString(R.string.signup_dialog_title));
+        dialog.setView(dialogView);
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.signup_dialog_OK), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                validateInput(mName, mPassword, new OnProcessInput() {
+                    @Override
+                    public void process(String name, String password) {
+                        showProgress(true);
+                        mSignUpTask = new UserSignUpTask(name, password);
+                        mSignUpTask.execute((Void) null);
+                    }
+                });
+            }
+        });
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.signup_dialog_Cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
     }
 
     /**
@@ -80,6 +130,19 @@ public class LoginActivity extends Activity {
             return;
         }
 
+        validateInput(mNameView, mPasswordView, new OnProcessInput() {
+            @Override
+            public void process(String name, String password) {
+                // Show a progress spinner, and kick off a background task to
+                // perform the user login attempt.
+                showProgress(true);
+                mAuthTask = new UserLoginTask(name, password);
+                mAuthTask.execute((Void) null);
+            }
+        });
+    }
+
+    private void validateInput(TextView mNameView, EditText mPasswordView, OnProcessInput onSuccess) {
         // Reset errors.
         mNameView.setError(null);
         mPasswordView.setError(null);
@@ -114,16 +177,12 @@ public class LoginActivity extends Activity {
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(name, password);
-            mAuthTask.execute((Void) null);
+            onSuccess.process(name, password);
         }
     }
 
     private boolean isEmailValid(String email) {
-        return email.matches("([A-Za-z][\\w_.]*\\w)@(\\w+\\.\\w+(?:.\\w+)*)");
+        return email.matches("([A-Za-z][\\w_\\.]*\\w)@(\\w+\\.\\w+(?:.\\w+)*)");
     }
 
     private boolean isPasswordValid(String password) {
@@ -167,7 +226,7 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
+     * Represents an asynchronous login task used to authenticate
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
@@ -215,5 +274,59 @@ public class LoginActivity extends Activity {
             showProgress(false);
         }
     }
+
+    /**
+     * Represents an asynchronous registration task used to sign up
+     * the user.
+     */
+    public class UserSignUpTask extends AsyncTask<Void, Void, Boolean> {
+
+        private String mName;
+        private String mPassword;
+        private String mStatus;
+
+        public UserSignUpTask(String name, String password){
+            mName = name;
+            mPassword = password;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            if (dbConnection.getProfile(mName) != null){
+                mStatus = getString(R.string.error_existing_profile);
+                return false;
+            }
+            byte[] hash = Cryptography.encrypt(mPassword);
+            if (!dbConnection.update(new Profile(-1, mName, hash))){
+                mStatus = getString(R.string.error_unknown_error);
+                return false;
+            }
+            mStatus = getString(R.string.registration_success);
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success){
+            mSignUpTask = null;
+            showProgress(false);
+
+            if (success){
+                mNameView.setText(mName);
+                mPasswordView.setText(mPassword);
+            }
+            Toast.makeText(getApplicationContext(), mStatus, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected void onCancelled() {
+            mSignUpTask = null;
+            showProgress(false);
+        }
+    }
+
+    private interface OnProcessInput {
+        void process(String name, String password);
+    }
+
 }
 

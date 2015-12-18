@@ -11,7 +11,7 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">Username</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="prompt_password">Password</string>
     <string name="action_sign_in">Log in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="action_register">No account? Register</string>
@@ -20,9 +20,14 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_incorrect_profile">This profile does not exist</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+
+    <!-- Sign up dialog -->
+    <string name="signup_dialog_title">Create new user</string>
+    <string name="signup_dialog_OK">OK</string>
+    <string name="signup_dialog_Cancel">Cancel</string>
+    <string name="error_existing_profile">This profile already exists</string>
+    <string name="error_unknown_error">A problem occurred while registering your account</string>
+    <string name="registration_success">Your account is ready</string>
 
     <!-- Settings -->
     <string name="settings_title_general">General</string>

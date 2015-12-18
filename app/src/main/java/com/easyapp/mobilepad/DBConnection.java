@@ -13,6 +13,6 @@ public interface DBConnection {
     Profile getProfile(@NonNull String login);
     List<Connection> getConnections(int profileId);
     List<Preset> getPresets(int profileId);
-    boolean updateDb(Connection connection);
+    boolean update(@NonNull DBSerializable obj);
 }
 

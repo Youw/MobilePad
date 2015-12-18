@@ -79,8 +79,8 @@ public class ConnectionsListFragment extends Fragment {
                                     if (parts.length > 1) {
                                         port = Integer.getInteger(parts[1], 8887);
                                     }
-                                    Connection connection = new Connection(parts[0],port);
-                                    if (dbConnection.updateDb(connection)) {
+                                    Connection connection = new Connection(mProfileId,parts[0],port);
+                                    if (dbConnection.update(connection)) {
                                         mConnectionList.add(connection);
                                     }
                                 } else {

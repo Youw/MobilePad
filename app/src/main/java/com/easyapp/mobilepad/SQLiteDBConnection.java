@@ -2,7 +2,6 @@ package com.easyapp.mobilepad;
 
 import com.easyapp.mobilepad.datacontract.*;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -99,14 +98,10 @@ public class SQLiteDBConnection implements DBConnection {
     }
 
     @Override
-    public boolean updateDb(Connection connection) {
+    public boolean update(@NonNull DBSerializable obj) {
         long result = -1;
         try(SQLiteDatabase db = mDBHelper.getWritableDatabase()) {
-            ContentValues values = new ContentValues();
-            values.put(Connection.HOST, connection.getHost());
-            values.put(Connection.PORT, connection.getPort());
-
-            result = db.insert(Connection.TABLE_NAME, null, values);
+            result = db.insert(obj.getTableName(), null, obj.getContent());
         }
         return result != -1;
     }
