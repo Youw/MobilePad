@@ -12,15 +12,17 @@ To use this application, you also need to run [MobilePadServer](https://github.c
 
 ###Typical workflow:
 For new user:
+
 1. Register:
-1.1. Choose login/username (currently only email, device specific).
-1.2. Choose password (>4 alphanumeric).
+  1. Choose login/username (currently only email, device specific).
+  2. Choose password (>4 alphanumeric).
 2. Login.
 3. Add connection (any valid IP, default port: 8887).
 4. Choose preset.
 5. Become an experienced user!
 
 For experienced user:
+
 1. Login.
 2. Choose connection.
 3. Choose preset.

@@ -257,6 +257,7 @@ public class LoginActivity extends Activity {
                 Intent connections_intent = new Intent(getBaseContext(), Connections.class);
                 connections_intent.putExtras(options);
                 startActivity(connections_intent);
+                finish();
             } else {
                 if (mProfile == null){
                     mNameView.setError(getText(R.string.error_incorrect_profile));
