@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/connection_list_item_height"
     android:layout_gravity="center_vertical"
-    android:drawableStart="@mipmap/MobilePad"
+    android:drawableStart="@mipmap/mobile_pad"
     android:drawablePadding="@dimen/connection_list_item_image_margin"
     android:id="@+id/connection_text" />
 <!--@drawable/connection_list_item_image-->
