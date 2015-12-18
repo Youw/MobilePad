@@ -1,6 +1,7 @@
 package com.easyapp.mobilepad;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +41,8 @@ public class Connections extends Activity {
                         .commit();
                 return true;
             case R.id.action_logout:
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                finish();
                 return true;
         }
 
