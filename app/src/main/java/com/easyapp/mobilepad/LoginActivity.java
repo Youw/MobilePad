@@ -91,10 +91,11 @@ public class LoginActivity extends Activity {
             return;
         }
 
-        AlertDialog dialog = new AlertDialog.Builder(this).create();
+        final AlertDialog dialog = new AlertDialog.Builder(this).create();
         View dialogView = View.inflate(dialog.getContext(), R.layout.dialog_signup, null);
 
         final EditText mName = (EditText) dialogView.findViewById(R.id.dialog_signup_name);
+        final EditText mEmail = (EditText) dialogView.findViewById(R.id.dialog_signup_email);
         final EditText mPassword = (EditText) dialogView.findViewById(R.id.dialog_signup_password);
 
         dialog.setTitle(getString(R.string.signup_dialog_title));
@@ -102,22 +103,58 @@ public class LoginActivity extends Activity {
         dialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.signup_dialog_OK), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                validateInput(mName, mPassword, new OnProcessInput() {
-                    @Override
-                    public void process(String name, String password) {
-                        showProgress(true);
-                        mSignUpTask = new UserSignUpTask(name, password);
-                        mSignUpTask.execute((Void) null);
-                    }
-                });
+                // reimplemented later
             }
         });
         dialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.signup_dialog_Cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                // default behaviour will cancel dialog
             }
         });
+
+        dialog.create();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                validateInput(mName, mPassword, mEmail, new OnProcessRegisterInput() {
+                    @Override
+                    public void process(String name, String password, String email, ProcessRegisterResult result) {
+                        switch (result) {
+                            case INPUT_OK:
+                                showProgress(true);
+                                mSignUpTask = new UserSignUpTask(name, email, password);
+                                mSignUpTask.execute((Void) null);
+                                dialog.dismiss();
+                                break;
+                            case USERNAME_EMPTY:
+                                mName.setError(getText(R.string.enter_username));
+                                mName.requestFocus();
+                                break;
+                            case PASSWORD_EMPTY:
+                                mPassword.setError(getText(R.string.enter_password));
+                                mPassword.requestFocus();
+                                break;
+                            case PASSWORD_TOO_SHORT:
+                                mPassword.setError(getString(R.string.signup_error_password_too_short));
+                                mPassword.requestFocus();
+                                break;
+                            case EMAIL_EMPTY:
+                                mEmail.setError(getString(R.string.signup_error_enter_email));
+                                mEmail.requestFocus();
+                                break;
+                            case EMAIL_NOT_VALID:
+                                mEmail.setError(getString(R.string.signup_error_wrong_email));
+                                mEmail.requestFocus();
+                                break;
+                        }
+                    }
+                });
+
+            }
+        });
+
         dialog.show();
     }
 
@@ -133,60 +170,102 @@ public class LoginActivity extends Activity {
 
         validateInput(mNameView, mPasswordView, new OnProcessInput() {
             @Override
-            public void process(String name, String password) {
-                // Show a progress spinner, and kick off a background task to
-                // perform the user login attempt.
-                showProgress(true);
-                mAuthTask = new UserLoginTask(name, password);
-                mAuthTask.execute((Void) null);
+            public void process(String name, String password, ProcessResult result) {
+                // Reset errors.
+                mNameView.setError(null);
+                mPasswordView.setError(null);
+
+                String password_error = "";
+                switch (result) {
+                    case INPUT_OK:
+                        // Show a progress spinner, and kick off a background task to
+                        // perform the user login attempt.
+                        showProgress(true);
+                        mAuthTask = new UserLoginTask(name, password);
+                        mAuthTask.execute((Void) null);
+                        break;
+                    case PASSWORD_EMPTY:
+                        password_error = getString(R.string.enter_password);
+                    case PASSWORD_TOO_SHORT:
+                        if (TextUtils.isEmpty(password_error)) {
+                            password_error = getString(R.string.password_is_incorrect);
+                        }
+                        mPasswordView.setError(password_error);
+                        mPasswordView.requestFocus();
+                        break;
+                    case USERNAME_EMPTY:
+                        mNameView.setError(getString(R.string.enter_username_or_email));
+                        mNameView.requestFocus();
+                        break;
+                }
             }
         });
     }
 
-    private void validateInput(TextView mNameView, EditText mPasswordView, OnProcessInput onSuccess) {
-        // Reset errors.
-        mNameView.setError(null);
-        mPasswordView.setError(null);
-
+    private void validateInput(TextView mNameView, EditText mPasswordView, OnProcessInput process) {
         // Store values at the time of the login attempt.
         String name = mNameView.getText().toString().trim();
         String password = mPasswordView.getText().toString().trim();
 
-        boolean cancel = false;
-        View focusView = null;
+        OnProcessInput.ProcessResult result = OnProcessInput.ProcessResult.INPUT_OK;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid name address.
         if (TextUtils.isEmpty(name)) {
-            mNameView.setError(getString(R.string.error_field_required));
-            focusView = mNameView;
-            cancel = true;
-        } else if (!isEmailValid(name)) {
-            mNameView.setError(getString(R.string.error_invalid_email));
-            focusView = mNameView;
-            cancel = true;
+            result = OnProcessInput.ProcessResult.USERNAME_EMPTY;
         }
 
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            onSuccess.process(name, password);
+        // Check for a valid password, if the user entered one.
+        if (result == OnProcessInput.ProcessResult.INPUT_OK && TextUtils.isEmpty(password)) {
+            result = OnProcessInput.ProcessResult.PASSWORD_EMPTY;
         }
+
+        if (result == OnProcessInput.ProcessResult.INPUT_OK && !isPasswordLongEnough(password))
+        {
+            result = OnProcessInput.ProcessResult.PASSWORD_TOO_SHORT;
+        }
+        process.process(name, password, result);
+    }
+
+    private void validateInput(TextView mNameView, EditText mPasswordView, EditText mEmailView, final OnProcessRegisterInput process) {
+        final String email = mEmailView.getText().toString().trim();
+        validateInput(mNameView, mPasswordView, new OnProcessInput() {
+            @Override
+            public void process(String name, String password, ProcessResult result) {
+                OnProcessRegisterInput.ProcessRegisterResult validation_result = OnProcessRegisterInput.ProcessRegisterResult.INPUT_OK;
+                switch (result) {
+                    case INPUT_OK:
+                    case PASSWORD_EMPTY:
+                        if (TextUtils.isEmpty(email)) {
+                            validation_result = OnProcessRegisterInput.ProcessRegisterResult.EMAIL_EMPTY;
+                            break;
+                        }
+                        if (!isEmailValid(email)) {
+                            validation_result = OnProcessRegisterInput.ProcessRegisterResult.EMAIL_NOT_VALID;
+                            break;
+                        }
+                        if (result == ProcessResult.PASSWORD_EMPTY) {
+                            validation_result = OnProcessRegisterInput.ProcessRegisterResult.PASSWORD_EMPTY;
+                            break;
+                        }
+//                        validation_result = OnProcessRegisterInput.ProcessRegisterResult.INPUT_OK;
+                        break;
+                    case USERNAME_EMPTY:
+                        validation_result = OnProcessRegisterInput.ProcessRegisterResult.USERNAME_EMPTY;
+                        break;
+                    case PASSWORD_TOO_SHORT:
+                        validation_result = OnProcessRegisterInput.ProcessRegisterResult.PASSWORD_TOO_SHORT;
+                        break;
+                }
+                process.process(name, password, email, validation_result);
+            }
+        });
     }
 
     private boolean isEmailValid(String email) {
         return email.matches("([A-Za-z][\\w_\\.]*\\w)@(\\w+\\.\\w+(?:.\\w+)*)");
     }
 
-    private boolean isPasswordValid(String password) {
+    private boolean isPasswordLongEnough(String password) {
         return password.length() > 4;
     }
 
@@ -232,19 +311,25 @@ public class LoginActivity extends Activity {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mName;
+        private final String mLogin;
         private final String mPassword;
+        private final Boolean mIsLoginByEmail;
         private Profile mProfile = null;
 
-        UserLoginTask(String name, String password) {
-            mName = name;
+        UserLoginTask(String login_input, String password) {
+            mLogin = login_input;
             mPassword = password;
+            mIsLoginByEmail = isEmailValid(mLogin);
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            mProfile = dbConnection.getProfile(mName);
-            return mProfile != null && Cryptography.verify(mPassword, mProfile.getPassword());
+            if (mIsLoginByEmail) {
+                mProfile = dbConnection.getProfileByEmail(mLogin);
+            } else {
+                mProfile = dbConnection.getProfileByUsername(mLogin);
+            }
+            return mProfile != null && Cryptography.verify(mPassword, mProfile.getPasswordHash());
         }
 
         @Override
@@ -261,10 +346,14 @@ public class LoginActivity extends Activity {
                 finish();
             } else {
                 if (mProfile == null){
-                    mNameView.setError(getText(R.string.error_incorrect_profile));
+                    if (mIsLoginByEmail) {
+                        mNameView.setError(getString(R.string.user_email_not_exists));
+                    } else {
+                        mNameView.setError(getString(R.string.username_not_exists));
+                    }
                     mNameView.requestFocus();
                 } else {
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.setError(getString(R.string.password_is_incorrect));
                     mPasswordView.requestFocus();
                 }
             }
@@ -284,26 +373,33 @@ public class LoginActivity extends Activity {
     public class UserSignUpTask extends AsyncTask<Void, Void, Boolean> {
 
         private String mName;
+        private String mEmail;
         private String mPassword;
+
         private String mStatus;
 
-        public UserSignUpTask(String name, String password){
+        public UserSignUpTask(String name, String email, String password){
             mName = name;
+            mEmail = email;
             mPassword = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            if (dbConnection.getProfile(mName) != null){
-                mStatus = getString(R.string.error_existing_profile);
+            if (dbConnection.getProfileByUsername(mName) != null){
+                mStatus = getString(R.string.signup_error_existing_username);
                 return false;
             }
-            byte[] hash = Cryptography.encrypt(mPassword);
-            if (!dbConnection.update(new Profile(-1, mName, hash))){
-                mStatus = getString(R.string.error_unknown_error);
+            if (dbConnection.getProfileByEmail(mEmail) != null){
+                mStatus = getString(R.string.signup_error_existing_email);
                 return false;
             }
-            mStatus = getString(R.string.registration_success);
+            byte[] passwordHash = Cryptography.encrypt(mPassword);
+            if (!dbConnection.update(new Profile(-1, mName, mEmail, passwordHash))){
+                mStatus = getString(R.string.signup_error_unknown_error);
+                return false;
+            }
+            mStatus = getString(R.string.signup_registration_success);
             return true;
         }
 
@@ -314,8 +410,10 @@ public class LoginActivity extends Activity {
 
             if (success){
                 mNameView.setText(mName);
-                mPasswordView.setText(mPassword);
+            } else {
+                mNameView.setText("");
             }
+            mPasswordView.setText("");
             Toast.makeText(getApplicationContext(), mStatus, Toast.LENGTH_LONG).show();
         }
 
@@ -327,7 +425,27 @@ public class LoginActivity extends Activity {
     }
 
     private interface OnProcessInput {
-        void process(String name, String password);
+        enum ProcessResult {
+            INPUT_OK,
+            USERNAME_EMPTY,
+            PASSWORD_EMPTY,
+            PASSWORD_TOO_SHORT
+        }
+
+        void process(String name, String password, ProcessResult result);
+    }
+
+    private interface OnProcessRegisterInput  {
+        enum ProcessRegisterResult {
+            INPUT_OK,
+            USERNAME_EMPTY,
+            PASSWORD_EMPTY,
+            PASSWORD_TOO_SHORT,
+            EMAIL_EMPTY,
+            EMAIL_NOT_VALID
+        }
+
+        void process(String name, String password, String email, ProcessRegisterResult result);
     }
 
 }

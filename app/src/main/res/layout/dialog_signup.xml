@@ -6,12 +6,20 @@
     
     <EditText
         android:id="@+id/dialog_signup_name"
-        android:inputType="textEmailAddress"
-        android:hint="@string/prompt_email"
+        android:inputType="text"
+        android:hint="@string/signup_prompt_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"/>
-    
+
+    <EditText
+        android:id="@+id/dialog_signup_email"
+        android:inputType="textEmailAddress"
+        android:hint="@string/signup_prompt_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"/>
+
     <EditText
         android:id="@+id/dialog_signup_password"
         android:inputType="textPassword"

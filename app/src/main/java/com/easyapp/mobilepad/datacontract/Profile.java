@@ -5,30 +5,36 @@ import android.support.annotation.NonNull;
 
 public class Profile implements DBSerializable {
     public static final String TABLE_NAME = "Profiles";
+
     public static final String ID = "id";
-    public static final String NAME = "name";
+    public static final String USERNAME = "name";
+    public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
 
     private final int mId;
     private final String mName;
-    private final byte[] mPassword;
+    private final String mEmail;
+    private final byte[] mPasswordHash;
 
-    public Profile(int id, String name, byte[] password){
+    public Profile(int id, String name, String email, byte[] passwordHash){
         mId = id;
         mName = name;
-        mPassword = password;
+        mEmail = email;
+        mPasswordHash = passwordHash;
     }
 
     public int getId(){ return mId; }
     public String getName() { return mName; }
-    public byte[] getPassword() { return mPassword; }
+    public String getEmail() { return mEmail; }
+    public byte[] getPasswordHash() { return mPasswordHash; }
 
     @NonNull
     @Override
     public ContentValues getContent() {
-        ContentValues values = new ContentValues(3);
-        values.put(NAME, mName);
-        values.put(PASSWORD, mPassword);
+        ContentValues values = new ContentValues(4);
+        values.put(USERNAME, mName.toLowerCase());
+        values.put(EMAIL, mEmail.toLowerCase());
+        values.put(PASSWORD, mPasswordHash);
         if (mId != -1) values.put(ID, mId);
         return values;
     }

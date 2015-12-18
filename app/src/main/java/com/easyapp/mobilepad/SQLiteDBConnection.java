@@ -28,21 +28,43 @@ public class SQLiteDBConnection implements DBConnection {
         return SQLiteDBConnectionHolder.INSTANCE;
     }
 
-    @Override
-    public Profile getProfile(@NonNull String login) {
-        try (SQLiteDatabase db = mDBHelper.getReadableDatabase()) {
-            String[] projection = {
-                    Profile.ID,
-                    Profile.PASSWORD
-            };
-            String[] where = { login };
+    static private final String[] PROFILE_PROJECTION = {
+            Profile.ID,
+            Profile.USERNAME,
+            Profile.EMAIL,
+            Profile.PASSWORD
+    };
 
-            try (Cursor c = db.query(Profile.TABLE_NAME,
-                    projection, Profile.NAME + "=?", where, null, null, null)) {
+    private Profile profileFromCursor(Cursor c) {
+        int id = c.getInt(0);
+        String username = c.getString(1);
+        String email = c.getString(2);
+        byte[] password = c.getBlob(3);
+        return new Profile(id, username, email, password);
+    }
+
+    @Override
+    public Profile getProfileByUsername(@NonNull String username) {
+        try (SQLiteDatabase db = mDBHelper.getReadableDatabase()) {
+            String[] where = { username.toLowerCase() };
+
+            try (Cursor c = db.query(Profile.TABLE_NAME, PROFILE_PROJECTION, Profile.USERNAME + "=?", where, null, null, null)) {
                 if (c.moveToFirst()) {
-                    int id = c.getInt(0);
-                    byte[] password = c.getBlob(1);
-                    return new Profile(id, login, password);
+                    return profileFromCursor(c);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Profile getProfileByEmail(@NonNull String email) {
+        try (SQLiteDatabase db = mDBHelper.getReadableDatabase()) {
+            String[] where = { email.toLowerCase() };
+
+            try (Cursor c = db.query(Profile.TABLE_NAME, PROFILE_PROJECTION, Profile.EMAIL + "=?", where, null, null, null)) {
+                if (c.moveToFirst()) {
+                    return profileFromCursor(c);
                 }
             }
         }
@@ -99,9 +121,12 @@ public class SQLiteDBConnection implements DBConnection {
 
     @Override
     public boolean update(@NonNull DBSerializable obj) {
-        long result = -1;
+        long result;
         try(SQLiteDatabase db = mDBHelper.getWritableDatabase()) {
             result = db.insert(obj.getTableName(), null, obj.getContent());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = -1;
         }
         return result != -1;
     }

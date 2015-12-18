@@ -10,24 +10,31 @@
     <string name="content_description_image">Connection image</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Username</string>
+    <string name="prompt_username_email">Username/e-mail</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Log in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="action_register">No account? Register</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_incorrect_profile">This profile does not exist</string>
-    <string name="error_field_required">This field is required</string>
+    <string name="enter_password">Enter password</string>
+    <string name="password_is_incorrect">Password is incorrect</string>
+    <string name="enter_username_or_email">Enter username or email</string>
+    <string name="enter_username">Enter username</string>
+    <string name="username_not_exists">User doesn\'t exists</string>
+    <string name="user_email_not_exists">User with this email not exists</string>
 
     <!-- Sign up dialog -->
     <string name="signup_dialog_title">Create new user</string>
+    <string name="signup_prompt_username">Username</string>
+    <string name="signup_prompt_email">e-mail</string>
     <string name="signup_dialog_OK">OK</string>
     <string name="signup_dialog_Cancel">Cancel</string>
-    <string name="error_existing_profile">This profile already exists</string>
-    <string name="error_unknown_error">A problem occurred while registering your account</string>
-    <string name="registration_success">Your account is ready</string>
+    <string name="signup_error_existing_email">Profile with this email already registered</string>
+    <string name="signup_error_existing_username">This username is already chosen. Pick another one</string>
+    <string name="signup_error_unknown_error">A problem occurred while registering your account</string>
+    <string name="signup_error_enter_email">Enter email</string>
+    <string name="signup_error_wrong_email">Enter valid email</string>
+    <string name="signup_error_password_too_short">Password is too short</string>
+    <string name="signup_registration_success">Your account is ready</string>
 
     <!-- Settings -->
     <string name="settings_title_general">General</string>

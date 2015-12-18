@@ -20,7 +20,8 @@ public class MobilePadDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + Profile.TABLE_NAME + " (" +
                         Profile.ID + " integer primary key asc autoincrement," +
-                        Profile.NAME + " text not null," +
+                        Profile.USERNAME + " text not null," +
+                        Profile.EMAIL + " text not null," +
                         Profile.PASSWORD + " blob not null" +
                         ")"
                     );
@@ -44,9 +45,10 @@ public class MobilePadDbHelper extends SQLiteOpenHelper {
 
         // insert admin profile
         ContentValues admin_account = new ContentValues();
-        admin_account.put(Profile.NAME, "admin@admin.com");
+        admin_account.put(Profile.EMAIL, "admin@admin.com");
         byte password[] = Cryptography.encrypt("admin");
         admin_account.put(Profile.PASSWORD, password);
+        admin_account.put(Profile.USERNAME, "admin");
         db.insert(Profile.TABLE_NAME, null, admin_account);
     }
 

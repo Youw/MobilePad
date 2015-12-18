@@ -10,7 +10,8 @@ import java.util.List;
  * Created by Gasper on 15.12.2015.
  */
 public interface DBConnection {
-    Profile getProfile(@NonNull String login);
+    Profile getProfileByUsername(@NonNull String username);
+    Profile getProfileByEmail(@NonNull String email);
     List<Connection> getConnections(int profileId);
     List<Preset> getPresets(int profileId);
     boolean update(@NonNull DBSerializable obj);
