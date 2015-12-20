@@ -50,6 +50,19 @@ public class MobilePadDbHelper extends SQLiteOpenHelper {
         admin_account.put(Profile.PASSWORD, password);
         admin_account.put(Profile.USERNAME, "admin");
         db.insert(Profile.TABLE_NAME, null, admin_account);
+
+        // insert hardcoded presets
+        ContentValues preset1 = new ContentValues();
+        preset1.put(Preset.NAME, "Preset1");
+        preset1.put(Preset.PRESET, "1");
+        preset1.put(Preset.PROFILE_ID, 1);
+        ContentValues preset2 = new ContentValues();
+        preset2.put(Preset.NAME, "Preset2");
+        preset2.put(Preset.PRESET, "2");
+        preset2.put(Preset.PROFILE_ID, 1);
+        db.insert(Preset.TABLE_NAME, null, preset1);
+        db.insert(Preset.TABLE_NAME, null, preset2);
+
     }
 
     @Override

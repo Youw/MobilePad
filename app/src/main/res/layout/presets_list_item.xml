@@ -4,6 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/connection_list_item_height"
     android:layout_gravity="center_vertical"
-    android:drawableStart="@android:drawable/ic_dialog_info"
+    android:drawableStart="@android:drawable/ic_menu_compass"
     android:drawablePadding="@dimen/connection_list_item_image_margin"
     android:id="@+id/presets_item" />

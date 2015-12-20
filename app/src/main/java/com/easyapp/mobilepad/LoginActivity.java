@@ -340,7 +340,7 @@ public class LoginActivity extends Activity {
             if (success) {
                 Bundle options = new Bundle();
                 options.putInt("profile", mProfile.getId());
-                Intent connections_intent = new Intent(getBaseContext(), Connections.class);
+                Intent connections_intent = new Intent(getBaseContext(), MainActivity.class);
                 connections_intent.putExtras(options);
                 startActivity(connections_intent);
                 finish();
@@ -395,7 +395,7 @@ public class LoginActivity extends Activity {
                 return false;
             }
             byte[] passwordHash = Cryptography.encrypt(mPassword);
-            if (!dbConnection.update(new Profile(-1, mName, mEmail, passwordHash))){
+            if (!dbConnection.createProfile(mName, mEmail, passwordHash)){
                 mStatus = getString(R.string.signup_error_unknown_error);
                 return false;
             }

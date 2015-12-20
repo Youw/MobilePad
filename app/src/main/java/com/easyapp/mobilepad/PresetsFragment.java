@@ -2,7 +2,6 @@ package com.easyapp.mobilepad;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 import com.easyapp.mobilepad.datacontract.Preset;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,26 +23,36 @@ import java.util.List;
  */
 public class PresetsFragment extends Fragment {
 
-    private final static DBConnection dbConnection = SQLiteDBConnection.getInstance(null);
+    public interface PresetClickListener {
+        void onClick(String presetName);
+    }
 
-    private int mProfileId = -1;
+    private static DBConnection dbConnection =  null;
+
     private ArrayAdapter<Preset> mAdapter;
     private List<Preset> mPresetList = new ArrayList<>();
 
+    private PresetClickListener mClickListener = null;
+    PresetsFragment setPresetClickListener(PresetClickListener ClickListener) {
+        mClickListener = ClickListener;
+        return this;
+    }
+
     public PresetsFragment() { }
 
-    public static PresetsFragment newInstance(int profileId) {
+    public static PresetsFragment newInstance(int profileId, DBConnection connection) {
+        if (dbConnection == null) {
+            dbConnection = connection;
+        }
         PresetsFragment fragment = new PresetsFragment();
         if (profileId != -1){
-            fragment.mProfileId = profileId;
             fragment.mPresetList.addAll(dbConnection.getPresets(profileId));
         }
         return fragment;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_presets, container, false);
 
         ListView presetsList = (ListView)rootView.findViewById(R.id.presets_list);
@@ -66,10 +74,10 @@ public class PresetsFragment extends Fragment {
         presetsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String preset = (String)parent.getItemAtPosition(position);
-                Bundle options = new Bundle();
-                options.putSerializable("preset", preset);
-                startActivity(new Intent(getActivity().getBaseContext(),LoginActivity.class), options);
+                Preset preset = (Preset)parent.getItemAtPosition(position);
+                if (mClickListener != null) {
+                    mClickListener.onClick(preset.getName());
+                }
             }
         });
 
@@ -95,7 +103,7 @@ public class PresetsFragment extends Fragment {
             View view = convertView;
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                inflater.inflate(R.layout.presets_list_item, null);
+                view = inflater.inflate(R.layout.presets_list_item, null);
             }
             Preset preset = getItem(position);
             if (preset != null) {

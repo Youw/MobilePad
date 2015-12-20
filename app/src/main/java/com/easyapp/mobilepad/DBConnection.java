@@ -14,6 +14,8 @@ public interface DBConnection {
     Profile getProfileByEmail(@NonNull String email);
     List<Connection> getConnections(int profileId);
     List<Preset> getPresets(int profileId);
-    boolean update(@NonNull DBSerializable obj);
+
+    boolean insert(@NonNull DBSerializable obj);
+    boolean createProfile(String username, String email, byte passwordHash[]);
 }
 

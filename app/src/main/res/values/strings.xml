@@ -60,9 +60,12 @@
     <string name="add_host_dialog_title">Enter host:</string>
     <string name="add_host_dialog_OK">OK</string>
     <string name="add_host_dialog_Cancel">Cancel</string>
-    <string name="add_host_dialog_err">Invalid host</string>
 
-    <!-- TODO: Remove this placeholder text -->
+    <!-- Main activity -->
     <string name="msg_missing_functionality">This functionality will be added later.</string>
+    <string name="choose_preset_layout">Choose preset layout</string>
+    <string name="connect_to_host">Connect to host</string>
+    <string name="settings">Settings</string>
+    <string name="press_back_to_quit">Press \'Back\' again to quit.</string>
 
 </resources>

@@ -35,7 +35,9 @@ public class Connection implements DBSerializable {
     @Override
     public ContentValues getContent() {
         ContentValues values = new ContentValues(3);
-        values.put(PROFILE_ID, mProfileId);
+        if (mProfileId != -1) {
+            values.put(PROFILE_ID, mProfileId);
+        }
         values.put(HOST, mHost);
         values.put(PORT, mPort);
         return values;

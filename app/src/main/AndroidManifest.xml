@@ -23,8 +23,7 @@
         </activity>
 
         <activity
-            android:name=".Connections"
-            android:label="@string/title_activity_connections" />
+            android:name=".MainActivity"/>
     </application>
 
 </manifest>

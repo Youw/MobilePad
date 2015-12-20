@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class ConnectionsListFragment extends Fragment {
 
-    private final static DBConnection dbConnection = SQLiteDBConnection.getInstance(null);
+    private static DBConnection dbConnection = null;
 
     private int mProfileId = -1;
     private ArrayAdapter<Connection> mAdapter;
@@ -40,7 +40,8 @@ public class ConnectionsListFragment extends Fragment {
 
     public ConnectionsListFragment(){}
 
-    public static ConnectionsListFragment newInstance(int profileId){
+    public static ConnectionsListFragment newInstance(int profileId, DBConnection connection) {
+        dbConnection = connection;
         ConnectionsListFragment fragment = new ConnectionsListFragment();
         if (profileId != -1) {
             fragment.mProfileId = profileId;
@@ -65,35 +66,30 @@ public class ConnectionsListFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final EditText host = new EditText(getActivity().getBaseContext());
-                host.setInputType(InputType.TYPE_CLASS_NUMBER);
+                host.setInputType(InputType.TYPE_CLASS_TEXT);
                 (new AlertDialog.Builder(rootView.getContext()))
                         .setTitle(getString(R.string.add_host_dialog_title))
                         .setView(host)
                         .setPositiveButton(getString(R.string.add_host_dialog_OK), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                String hostName = host.getText().toString().trim();
-                                if (hostName.matches("(?:\\d{1,3}\\.){3}\\d{1,3}(?::\\d+)?")) {
-                                    String[] parts = hostName.split(":");
-                                    int port = 8887;
-                                    if (parts.length > 1) {
-                                        port = Integer.getInteger(parts[1], 8887);
-                                    }
-                                    Connection connection = new Connection(mProfileId,parts[0],port);
-                                    if (dbConnection.update(connection)) {
-                                        mConnectionList.add(connection);
-                                    }
-                                } else {
-                                    Toast.makeText(getActivity().getBaseContext(),
-                                            getString(R.string.add_host_dialog_err),
-                                            Toast.LENGTH_SHORT).show();
+                                String hostFullAddr = host.getText().toString().trim();
+                                String[] parts = hostFullAddr.split(":");
+                                String host = parts[0];
+                                int port = 8887;
+                                if (parts.length > 1) {
+                                    port = Integer.getInteger(parts[1], 8887);
+                                }
+                                Connection connection = new Connection(mProfileId, host, port);
+                                if (dbConnection.insert(connection)) {
+                                    mConnectionList.add(connection);
                                 }
                             }
                         })
                         .setNegativeButton(getString(R.string.add_host_dialog_Cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
+                                // default behaviour will cancel
                             }
                         })
                         .create().show();
@@ -105,14 +101,21 @@ public class ConnectionsListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Connection connection = (Connection)parent.getItemAtPosition(position);
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, PresetsFragment.newInstance(mProfileId))
-                        .addToBackStack(null)
-                        .commit();
+                if (mConnectionClickListener != null) {
+                    mConnectionClickListener.onClick(connection);
+                }
             }
         });
 
         return rootView;
+    }
+
+    public interface ConnectionClickListener {
+        void onClick(Connection connection);
+    }
+    private ConnectionClickListener mConnectionClickListener = null;
+    public void setConnectionClickListener(ConnectionClickListener clickListener) {
+        mConnectionClickListener = clickListener;
     }
 
     @Override

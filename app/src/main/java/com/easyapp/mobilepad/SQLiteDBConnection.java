@@ -120,7 +120,12 @@ public class SQLiteDBConnection implements DBConnection {
     }
 
     @Override
-    public boolean update(@NonNull DBSerializable obj) {
+    public boolean createProfile(String username, String email, byte[] passwordHash) {
+        return insert(new Profile(-1, username, email, passwordHash));
+    }
+
+    @Override
+    public boolean insert(@NonNull DBSerializable obj) {
         long result;
         try(SQLiteDatabase db = mDBHelper.getWritableDatabase()) {
             result = db.insert(obj.getTableName(), null, obj.getContent());
