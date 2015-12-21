@@ -67,5 +67,6 @@
     <string name="connect_to_host">Connect to host</string>
     <string name="settings">Settings</string>
     <string name="press_back_to_quit">Press \'Back\' again to quit.</string>
+    <string name="connecting_to">Connecting to</string>
 
 </resources>

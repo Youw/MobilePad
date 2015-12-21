@@ -17,11 +17,13 @@ public class MainActivity extends Activity {
 
     private Integer mProfileId = 0;
     private String mCurrentPreset;
+    private Connection mCurrentConnection;
 
     enum ChildFragment {
         PRESETS,
         CONNECTIONS,
-        SETTINGS
+        SETTINGS,
+        CONNECTING
     }
     private ChildFragment mCurrentFragment = ChildFragment.PRESETS;
     private ChildFragment mBackFragment = ChildFragment.PRESETS;
@@ -43,6 +45,8 @@ public class MainActivity extends Activity {
             mProfileId = savedInstanceState.getInt("profile_id");
             mBackFragment = (ChildFragment) savedInstanceState.get("back_fragment");
             mCurrentFragment = (ChildFragment) savedInstanceState.get("current_fragment");
+            mCurrentConnection = (Connection) savedInstanceState.get("current_connection");
+            mCurrentPreset = savedInstanceState.getString("current_preset");
             switch (mCurrentFragment) {
                 case PRESETS:
                     showPresets();
@@ -54,6 +58,9 @@ public class MainActivity extends Activity {
                     mCurrentFragment = mBackFragment;
                     showSettings();
                     break;
+                case CONNECTING:
+                    showConnecting();
+                    break;
             }
         }
     }
@@ -64,6 +71,8 @@ public class MainActivity extends Activity {
         outState.putInt("profile_id", mProfileId);
         outState.putSerializable("current_fragment", mCurrentFragment);
         outState.putSerializable("back_fragment", mBackFragment);
+        outState.putSerializable("current_connection", mCurrentConnection);
+        outState.putSerializable("current_preset", mCurrentPreset);
     }
 
     @Override
@@ -102,8 +111,12 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_connections, menu);
-        return true;
+        if (mCurrentFragment != ChildFragment.CONNECTING) {
+            getMenuInflater().inflate(R.menu.menu_connections, menu);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -126,21 +139,26 @@ public class MainActivity extends Activity {
     private void showSettings() {
         mBackPressed = false;
         setTitle(getString(R.string.settings));
+        if (mCurrentFragment != ChildFragment.SETTINGS) {
+            mBackFragment = mCurrentFragment;
+        }
+        mCurrentFragment = ChildFragment.SETTINGS;
+        invalidateOptionsMenu();
+
         SettingsFragment settingsFragment = new SettingsFragment();
         getFragmentManager().beginTransaction()
                 .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right)
                 .replace(R.id.fragment_container, settingsFragment)
                 .addToBackStack(null)
                 .commit();
-        if (mCurrentFragment != ChildFragment.SETTINGS) {
-            mBackFragment = mCurrentFragment;
-        }
-        mCurrentFragment = ChildFragment.SETTINGS;
     }
 
     private void showPresets() {
         mBackPressed = false;
         setTitle(getString(R.string.choose_preset_layout));
+        mCurrentFragment = ChildFragment.PRESETS;
+        invalidateOptionsMenu();
+
         PresetsFragment presetsFragment = PresetsFragment.newInstance(mProfileId, dbConnection);
         presetsFragment.setPresetClickListener(new PresetsFragment.PresetClickListener() {
             @Override
@@ -150,16 +168,18 @@ public class MainActivity extends Activity {
             }
         });
         getFragmentManager().beginTransaction()
-                .setCustomAnimations( R.animator.card_flip_right_in, R.animator.card_flip_right_out,
+                .setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out,
                         R.animator.card_flip_left_in, R.animator.card_flip_left_out)
                 .replace(R.id.fragment_container, presetsFragment)
                 .commit();
-        mCurrentFragment = ChildFragment.PRESETS;
     }
 
     private void showConnections() {
         mBackPressed = false;
         setTitle(getString(R.string.connect_to_host));
+        mCurrentFragment = ChildFragment.CONNECTIONS;
+        invalidateOptionsMenu();
+
         ConnectionsListFragment connectionsFragment = ConnectionsListFragment.newInstance(mProfileId, dbConnection);
         connectionsFragment.setConnectionClickListener(getConnectionClickListener());
         getFragmentManager().beginTransaction()
@@ -167,14 +187,28 @@ public class MainActivity extends Activity {
                         R.animator.card_flip_left_in, R.animator.card_flip_left_out)
                 .replace(R.id.fragment_container, connectionsFragment)
                 .commit();
-        mCurrentFragment = ChildFragment.CONNECTIONS;
+    }
+
+    private void showConnecting() {
+        mBackPressed = false;
+        setTitle(getString(R.string.connecting_to) + " " + mCurrentConnection.toString());
+        mCurrentFragment = ChildFragment.CONNECTING;
+        invalidateOptionsMenu();
+
+        ConnectingProgress connectionProgressFragment = ConnectingProgress.newInstance();
+        getFragmentManager().beginTransaction()
+                .setCustomAnimations( R.animator.card_flip_right_in, R.animator.card_flip_right_out,
+                        R.animator.card_flip_left_in, R.animator.card_flip_left_out)
+                .replace(R.id.fragment_container, connectionProgressFragment)
+                .commit();
     }
 
     private ConnectionsListFragment.ConnectionClickListener getConnectionClickListener() {
         return new ConnectionsListFragment.ConnectionClickListener() {
             @Override
             public void onClick(Connection connection) {
-                // TODO: implement connection to host
+                mCurrentConnection = connection;
+                showConnecting();
             }
         };
     }

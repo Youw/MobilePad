@@ -1,13 +1,10 @@
 package com.easyapp.mobilepad;
 
 import android.app.AlertDialog;
-import android.app.Application;
-import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -16,15 +13,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.easyapp.mobilepad.datacontract.Connection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

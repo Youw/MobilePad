@@ -3,7 +3,9 @@ package com.easyapp.mobilepad.datacontract;
 import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
-public class Connection implements DBSerializable {
+import java.io.Serializable;
+
+public class Connection implements DBSerializable, Serializable {
     public static final String TABLE_NAME = "Connections";
     public static final String PROFILE_ID = "profile_id";
     public static final String HOST = "host";
@@ -46,4 +48,6 @@ public class Connection implements DBSerializable {
     @NonNull
     @Override
     public String getTableName() { return TABLE_NAME; }
+
+
 }
