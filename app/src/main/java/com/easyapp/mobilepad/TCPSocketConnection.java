@@ -3,6 +3,7 @@ package com.easyapp.mobilepad;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +14,13 @@ import java.util.concurrent.Semaphore;
  */
 public class TCPSocketConnection extends Thread {
 
-    public interface SocketListener {
+    public interface TCPConnectionListener {
         void onRead(String data);
+        void onConnected(boolean connected);
+        void onDisconnected();
     }
 
-    private SocketListener mListener = null;
+    private TCPConnectionListener mListener = null;
     private final static int PORT = 8887;
     private final String mAddress;
     private final int mPort;
@@ -44,8 +47,15 @@ public class TCPSocketConnection extends Thread {
     @Override
     public void run() {
         try {
-            mSocket = new Socket(mAddress, mPort);
-            mListener.onRead("Connected to server");
+            mSocket = new Socket();
+            mSocket.connect(new InetSocketAddress(mAddress, mPort), 3000);
+            mListener.onConnected(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mListener.onConnected(false);
+            return;
+        }
+        try {
             mIn = new DataInputStream(mSocket.getInputStream());
             mOut = new DataOutputStream(mSocket.getOutputStream());
 
@@ -67,13 +77,6 @@ public class TCPSocketConnection extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (mSocket != null && !mSocket.isClosed()){
-                try {
-                    mSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             if (mIn != null) {
                 try {
                     mIn.close();
@@ -88,10 +91,18 @@ public class TCPSocketConnection extends Thread {
                     e.printStackTrace();
                 }
             }
+            if (mSocket != null && !mSocket.isClosed()){
+                try {
+                    mSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            mListener.onDisconnected();
         }
     }
 
-    public void setListener(SocketListener listener) {
+    public void setListener(TCPConnectionListener listener) {
         this.mListener = listener;
     }
 

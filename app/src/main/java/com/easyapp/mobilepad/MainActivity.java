@@ -1,6 +1,7 @@
 package com.easyapp.mobilepad;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -12,6 +13,7 @@ import com.easyapp.mobilepad.datacontract.Connection;
 
 public class MainActivity extends Activity {
 
+    private static TCPSocketConnection tcpConnection = null;
     private static DBConnection dbConnection =  null;
     private boolean mBackPressed;
 
@@ -209,7 +211,66 @@ public class MainActivity extends Activity {
             public void onClick(Connection connection) {
                 mCurrentConnection = connection;
                 showConnecting();
+                tcpConnection = new TCPSocketConnection(mCurrentConnection.getHost(), mCurrentConnection.getPort());
+                tcpConnection.setListener(newConnectionListener());
+                tcpConnection.start();
             }
         };
+    }
+
+    TCPSocketConnection.TCPConnectionListener newConnectionListener() {
+        return new TCPSocketConnection.TCPConnectionListener() {
+            @Override
+            public void onRead(String data) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onConnected(boolean connected_) {
+                final boolean connected = connected_;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!connected) {
+                            showConnections();
+                            Toast.makeText(getApplicationContext(), R.string.connecting_error, Toast.LENGTH_LONG).show();
+                        } else {
+                            if (mCurrentPreset == "preset1") {
+                                showPreset1();
+                            } else if (mCurrentPreset == "preset2") {
+                                showPreset2();
+                            } else {
+                                //
+                            }
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onDisconnected() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tcpConnection = null;
+                        showConnections();
+                        Toast.makeText(getApplicationContext(), R.string.disconnected, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        };
+    }
+
+    private void showPreset2() {
+
+    }
+
+    private void showPreset1() {
+
     }
 }
