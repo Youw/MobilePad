@@ -3,6 +3,7 @@ package com.easyapp.mobilepad;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.concurrent.Semaphore;
 /**
  * Created by Gasper on 14.12.2015.
  */
-public class TCPSocketConnection extends Thread {
+public class TCPSocketConnection extends Thread implements Serializable {
 
     public interface TCPConnectionListener {
         void onRead(String data);
@@ -62,7 +63,7 @@ public class TCPSocketConnection extends Thread {
             while (!Thread.currentThread().isInterrupted()) {
                 if (mSendData.size() > 0) {
                     for (String data : mSendData) {
-                        mOut.writeBytes(data);
+                        mOut.writeBytes(data+"\n");
                     }
                     mOut.flush();
                     mSendData.clear();

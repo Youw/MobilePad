@@ -1,11 +1,12 @@
 package com.easyapp.mobilepad;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by ihor.dutchak on 14.12.2015.
  */
-public class RemoteInputEmulator {
+public class RemoteInputEmulator implements Serializable {
     private TCPSocketConnection connection;
 
     public RemoteInputEmulator (TCPSocketConnection new_connection) {
@@ -171,5 +172,9 @@ public class RemoteInputEmulator {
 
     public void releaseButton(KeyboardButton button) {
         connection.send("KEY_UP:"+keyboardButtonCodes.get(button));
+    }
+
+    public void mouseMove(Integer delta_x, Integer delta_y) {
+        connection.send("MOUSE_MOVE:"+delta_x.toString()+":"+delta_y.toString());
     }
 }

@@ -10,28 +10,28 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="W"
+        android:text="UP"
         android:id="@+id/button_w"
         android:layout_gravity="center_horizontal|top" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="A"
+        android:text="LEFT"
         android:id="@+id/button_a"
         android:layout_gravity="left|center_vertical" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="D"
+        android:text="RIGHT"
         android:id="@+id/button_d"
         android:layout_gravity="right|center_vertical" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="S"
+        android:text="DOWN"
         android:id="@+id/button_s"
         android:layout_gravity="center" />
 </FrameLayout>

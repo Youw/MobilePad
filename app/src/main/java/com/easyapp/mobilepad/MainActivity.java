@@ -265,9 +265,9 @@ public class MainActivity extends Activity {
     }
 
     private void showCurrentPreset() {
-        if (mCurrentPreset == "preset1") {
+        if (mCurrentPreset.equals("Preset1")) {
             showPreset1();
-        } else if (mCurrentPreset == "preset2") {
+        } else if (mCurrentPreset.equals("Preset2")) {
             showPreset2();
         } else {
             //
@@ -280,14 +280,14 @@ public class MainActivity extends Activity {
 
     private void showPreset1() {
         mBackPressed = false;
-        setTitle("WASD");
+        setTitle("Preset1");
         mCurrentFragment = ChildFragment.PRESET;
 //
-//        Preset1Fragment connectionProgressFragment = Preset1Fragment.newInstance();
-//        getFragmentManager().beginTransaction()
-//                .setCustomAnimations( R.animator.card_flip_right_in, R.animator.card_flip_right_out,
-//                        R.animator.card_flip_left_in, R.animator.card_flip_left_out)
-//                .replace(R.id.fragment_container, connectionProgressFragment)
-//                .commit();
+        Preset1Fragment connectionProgressFragment = Preset1Fragment.newInstance(new RemoteInputEmulator(tcpConnection));
+        getFragmentManager().beginTransaction()
+                .setCustomAnimations( R.animator.card_flip_right_in, R.animator.card_flip_right_out,
+                        R.animator.card_flip_left_in, R.animator.card_flip_left_out)
+                .replace(R.id.fragment_container, connectionProgressFragment)
+                .commit();
     }
 }
