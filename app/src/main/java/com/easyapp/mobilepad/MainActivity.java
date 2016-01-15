@@ -25,7 +25,8 @@ public class MainActivity extends Activity {
         PRESETS,
         CONNECTIONS,
         SETTINGS,
-        CONNECTING
+        CONNECTING,
+        PRESET
     }
     private ChildFragment mCurrentFragment = ChildFragment.PRESETS;
     private ChildFragment mBackFragment = ChildFragment.PRESETS;
@@ -62,6 +63,9 @@ public class MainActivity extends Activity {
                     break;
                 case CONNECTING:
                     showConnecting();
+                    break;
+                case PRESET:
+                    showCurrentPreset();
                     break;
             }
         }
@@ -240,13 +244,7 @@ public class MainActivity extends Activity {
                             showConnections();
                             Toast.makeText(getApplicationContext(), R.string.connecting_error, Toast.LENGTH_LONG).show();
                         } else {
-                            if (mCurrentPreset == "preset1") {
-                                showPreset1();
-                            } else if (mCurrentPreset == "preset2") {
-                                showPreset2();
-                            } else {
-                                //
-                            }
+                            showCurrentPreset();
                         }
                     }
                 });
@@ -266,11 +264,30 @@ public class MainActivity extends Activity {
         };
     }
 
-    private void showPreset2() {
+    private void showCurrentPreset() {
+        if (mCurrentPreset == "preset1") {
+            showPreset1();
+        } else if (mCurrentPreset == "preset2") {
+            showPreset2();
+        } else {
+            //
+        }
+    }
 
+    private void showPreset2() {
+        showPreset1();
     }
 
     private void showPreset1() {
-
+        mBackPressed = false;
+        setTitle("WASD");
+        mCurrentFragment = ChildFragment.PRESET;
+//
+//        Preset1Fragment connectionProgressFragment = Preset1Fragment.newInstance();
+//        getFragmentManager().beginTransaction()
+//                .setCustomAnimations( R.animator.card_flip_right_in, R.animator.card_flip_right_out,
+//                        R.animator.card_flip_left_in, R.animator.card_flip_left_out)
+//                .replace(R.id.fragment_container, connectionProgressFragment)
+//                .commit();
     }
 }
