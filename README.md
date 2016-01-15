@@ -32,7 +32,11 @@ For experienced user:
 ###UI reference
 UI reference sheet can be found [here](https://github.com/Youw/MobilePad/blob/master/Design/MobilePad%20Mockup.pdf).
 
+###Performance
+You can check performance improvement [here] (https://github.com/Youw/MobilePad/tree/master/Performance).
+
 ###Contributors
 - Ihor Dutchak
 - Pavlo Borysenko 
 - Andrii Temnikov
+
